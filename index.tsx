@@ -1,5 +1,6 @@
-import { IAugmentedJQuery, IComponentOptions } from 'angular'
+import { IAugmentedJQuery, IComponentOptions, IRootScopeService } from 'angular'
 import fromPairs = require('lodash.frompairs')
+import isFunction = require('lodash.isfunction')
 import NgComponent from 'ngcomponent'
 import * as React from 'react'
 import { render, unmountComponentAtNode } from 'react-dom'
@@ -26,16 +27,17 @@ export function react2angular<Props>(
 
   return {
     bindings: fromPairs(names.map(_ => [_, '<'])),
-    controller: ['$element', ...injectNames, class extends NgComponent<Props> {
+    controller: ['$element', '$scope', ...injectNames, class extends NgComponent<Props> {
       static get $$ngIsClass() {
         return true
       }
       injectedProps: { [name: string]: any }
-      constructor(private $element: IAugmentedJQuery, ...injectedProps: any[]) {
+      constructor(private $element: IAugmentedJQuery, $scope: IRootScopeService, ...injectedProps: any[]) {
         super()
         this.injectedProps = {}
+
         injectNames.forEach((name, i) => {
-          this.injectedProps[name] = injectedProps[i]
+          this.injectedProps[name] = wrapIfFunction($scope, injectedProps[i])
         })
       }
       render() {
@@ -46,4 +48,11 @@ export function react2angular<Props>(
       }
     }]
   }
+}
+
+function wrapIfFunction ($scope: IRootScopeService, prop: any) {
+  return isFunction(prop) ? (...args: any[]) => {
+    prop(...args)
+    $scope.$applyAsync()
+  } : prop
 }

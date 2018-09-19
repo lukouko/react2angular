@@ -1,5 +1,8 @@
 <img alt="React to Angular: The easiest way to use React components in Angular 1" src="https://raw.githubusercontent.com/coatue-oss/react2angular/master/logo.png" width="400px" />
 
+TODO:
+  build things into dist
+
 # react2angular [![Build Status](https://img.shields.io/circleci/project/coatue-oss/react2angular.svg?branch=master&style=flat-square)](https://circleci.com/gh/coatue-oss/react2angular) [![NPM](https://img.shields.io/npm/v/react2angular.svg?style=flat-square)](https://www.npmjs.com/package/react2angular) [![Apache2](https://img.shields.io/npm/l/react2angular.svg?style=flat-square)](https://opensource.org/licenses/Apache2)
 
 > The easiest way to embed React components in Angular 1 apps! (opposite of [angular2react](https://github.com/coatue-oss/angular2react))

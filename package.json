@@ -75,8 +75,10 @@
   },
   "dependencies": {
     "@types/lodash.frompairs": "^4.0.3",
+    "@types/lodash.isfunction": "^3.0.4",
     "angular": ">=1.5",
     "lodash.frompairs": "^4.0.1",
+    "lodash.isfunction": "^3.0.9",
     "ngcomponent": "^4.1.0"
   }
 }

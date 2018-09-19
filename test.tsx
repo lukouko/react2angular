@@ -98,9 +98,9 @@ class TestSix extends React.Component<Props & DIProps> {
 }
 
 class TestSeven extends React.Component<Props> {
-  static propTypes = {
-    foo: PropTypes.string.isRequired
-  }
+  // static propTypes = {
+  //   foo: PropTypes.string.isRequired
+  // }
 
   render() {
     return <p>{this.props.foo}</p>
