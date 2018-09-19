@@ -34,14 +34,17 @@ export function react2angular<Props>(
       injectedProps: { [name: string]: any }
       constructor(private $element: IAugmentedJQuery, $scope: IRootScopeService, ...injectedProps: any[]) {
         super()
-        this.injectedProps = {}
+        this.injectedProps = {
+          $scope
+        }
 
         injectNames.forEach((name, i) => {
-          this.injectedProps[name] = wrapIfFunction($scope, injectedProps[i])
+          this.injectedProps[name] = injectedProps[i]
         })
       }
       render() {
-        render(<Class {...this.props} {...this.injectedProps} />, this.$element[0])
+        const props = wrapIfFunction(this.injectedProps.$scope, this.props)
+        render(<Class {...props} {...this.injectedProps} />, this.$element[0])
       }
       componentWillUnmount() {
         unmountComponentAtNode(this.$element[0])
@@ -50,9 +53,15 @@ export function react2angular<Props>(
   }
 }
 
-function wrapIfFunction ($scope: IRootScopeService, prop: any) {
-  return isFunction(prop) ? (...args: any[]) => {
-    prop(...args)
-    $scope.$applyAsync()
-  } : prop
+function wrapIfFunction ($scope: IRootScopeService, props: object) : object {
+  return Object.entries(props)
+    .reduce((wrappedProps : object, [name, prop]) => {
+      return {
+        ...wrappedProps,
+        [name] :  isFunction(prop) ? (...args: any[]) => {
+          prop(...args)
+          $scope.$applyAsync()
+        } : prop
+      }
+    }, {})
 }

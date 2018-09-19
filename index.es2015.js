@@ -26,16 +26,19 @@ function react2angular(Class, bindingNames = null, injectNames = []) {
                 constructor($element, $scope, ...injectedProps) {
                     super();
                     this.$element = $element;
-                    this.injectedProps = {};
+                    this.injectedProps = {
+                        $scope
+                    };
                     injectNames.forEach((name, i) => {
-                        this.injectedProps[name] = wrapIfFunction($scope, injectedProps[i]);
+                        this.injectedProps[name] = injectedProps[i];
                     });
                 }
                 static get $$ngIsClass() {
                     return true;
                 }
                 render() {
-                    react_dom_1.render(React.createElement(Class, Object.assign({}, this.props, this.injectedProps)), this.$element[0]);
+                    const props = wrapIfFunction(this.injectedProps.$scope, this.props);
+                    react_dom_1.render(React.createElement(Class, Object.assign({}, props, this.injectedProps)), this.$element[0]);
                 }
                 componentWillUnmount() {
                     react_dom_1.unmountComponentAtNode(this.$element[0]);
@@ -44,10 +47,13 @@ function react2angular(Class, bindingNames = null, injectNames = []) {
     };
 }
 exports.react2angular = react2angular;
-function wrapIfFunction($scope, prop) {
-    return isFunction(prop) ? (...args) => {
-        prop(...args);
-        $scope.$applyAsync();
-    } : prop;
+function wrapIfFunction($scope, props) {
+    return Object.entries(props)
+        .reduce((wrappedProps, [name, prop]) => {
+        return Object.assign({}, wrappedProps, { [name]: isFunction(prop) ? (...args) => {
+                prop(...args);
+                $scope.$applyAsync();
+            } : prop });
+    }, {});
 }
 //# sourceMappingURL=index.js.map

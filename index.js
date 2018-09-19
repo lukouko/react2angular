@@ -51,9 +51,11 @@ function react2angular(Class, bindingNames, injectNames) {
                     }
                     var _this = _super.call(this) || this;
                     _this.$element = $element;
-                    _this.injectedProps = {};
+                    _this.injectedProps = {
+                        $scope: $scope
+                    };
                     injectNames.forEach(function (name, i) {
-                        _this.injectedProps[name] = wrapIfFunction($scope, injectedProps[i]);
+                        _this.injectedProps[name] = injectedProps[i];
                     });
                     return _this;
                 }
@@ -65,7 +67,8 @@ function react2angular(Class, bindingNames, injectNames) {
                     configurable: true
                 });
                 class_1.prototype.render = function () {
-                    react_dom_1.render(React.createElement(Class, __assign({}, this.props, this.injectedProps)), this.$element[0]);
+                    var props = wrapIfFunction(this.injectedProps.$scope, this.props);
+                    react_dom_1.render(React.createElement(Class, __assign({}, props, this.injectedProps)), this.$element[0]);
                 };
                 class_1.prototype.componentWillUnmount = function () {
                     react_dom_1.unmountComponentAtNode(this.$element[0]);
@@ -75,14 +78,19 @@ function react2angular(Class, bindingNames, injectNames) {
     };
 }
 exports.react2angular = react2angular;
-function wrapIfFunction($scope, prop) {
-    return isFunction(prop) ? function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        prop.apply(void 0, args);
-        $scope.$applyAsync();
-    } : prop;
+function wrapIfFunction($scope, props) {
+    return Object.entries(props)
+        .reduce(function (wrappedProps, _a) {
+        var name = _a[0], prop = _a[1];
+        var _b;
+        return __assign({}, wrappedProps, (_b = {}, _b[name] = isFunction(prop) ? function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            prop.apply(void 0, args);
+            $scope.$applyAsync();
+        } : prop, _b));
+    }, {});
 }
 //# sourceMappingURL=index.js.map
